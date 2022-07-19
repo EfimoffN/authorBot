@@ -1,21 +1,28 @@
 package config
 
 import (
+	"fmt"
 	"os"
 
-	"github.com/EfimoffN/authorBot/config/lib/e"
+	"github.com/EfimoffN/authorBot/lib/e"
 	"gopkg.in/yaml.v3"
 )
 
-type Config struct {
+type ConfigApp struct {
 	BotToken        string `yaml: "bot_token"`
 	BindAddr        string `yaml: "bind_addr"`
 	LogLevel        string `yaml: "log_level"`
 	ConnectPostgres string `yaml: "connect_postgres"`
 }
 
-func CreateConfig(configPath string) (*Config, error) {
-	config := &Config{}
+func CreateConfig(configPath string) (*ConfigApp, error) {
+
+	err := validateConfigAppPath(configPath)
+	if err != nil {
+		return nil, e.Wrap("validat config path", err)
+	}
+
+	config := &ConfigApp{}
 
 	file, err := os.Open(configPath)
 	if err != nil {
@@ -32,15 +39,16 @@ func CreateConfig(configPath string) (*Config, error) {
 	return config, nil
 }
 
-func ValidateConfigPath(path string) error {
-	s, err := os.Stat(path)
+func validateConfigAppPath(path string) error {
+	_, err := os.Stat(path)
 	if err != nil {
-		t := "stat path: '%s'"
-		return e.Wrap("stat path: '%s'", err)
+		return e.Wrap(fmt.Sprintf("config path: '%s'", path), err)
 	}
-}
-
-func validateConfig(config Config) error {
 
 	return nil
 }
+
+// func validateConfig(config ConfigApp) error {
+
+// 	return nil
+// }
