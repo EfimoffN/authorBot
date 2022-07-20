@@ -31,11 +31,11 @@ COMMENT ON TABLE prj_link.linkid IS 'Идентификатор ссылки';
 COMMENT ON TABLE prj_link.link IS 'Ссылка на отслеживаемую страницу';
 
 CREATE TABLE ref_link_user(
-    keyid CHARACTER VARYING(32) NOT NULL UNIQUE,
+    refid CHARACTER VARYING(32) NOT NULL UNIQUE,
     userid CHARACTER VARYING(32) NOT NULL,
     linkid CHARACTER VARYING(32) NOT NULL,
     
-    CONSTRAINT pk_ref_link_user PRIMARY KEY (keyid)
+    CONSTRAINT pk_ref_link_user PRIMARY KEY (refid)
 )
 WITH(
 	OIDS=FALSE
@@ -43,7 +43,7 @@ WITH(
 
 ALTER TABLE ref_link_user OWNER TO postgres;
 COMMENT ON TABLE ref_link_user IS 'Таблица связи ссылка - пользоваетль';
-COMMENT ON TABLE ref_link_user.keyid IS 'Идентификатор связи ссылка - рользователь';
+COMMENT ON TABLE ref_link_user.refid IS 'Идентификатор связи ссылка - рользователь';
 COMMENT ON TABLE ref_link_user.userid IS 'Идентификатор пользователя';
 COMMENT ON TABLE ref_link_user.linkid IS 'Идентификатор ссылки на страницу';
 
