@@ -371,24 +371,22 @@ func Test_AddRefLinkUser(t *testing.T) {
 }
 
 func Test_RemoveRefLinkUser(t *testing.T) {
-	// columns := []string{"refid", "userid", "linkid"}
-
-	const expectedQuery = `DELETE FROM ref_link_use WHERE refid = (.+);`
+	const expectedQuery = `DELETE FROM ref_link_user WHERE refid = (.+);`
 
 	tests := []struct {
 		name    string
 		prepare func(mock sqlmock.Sqlmock)
 		wantErr bool
 	}{
-		// {
-		// 	name: "delete link",
-		// 	prepare: func(mock sqlmock.Sqlmock) {
-		// 		mock.ExpectQuery(expectedQuery).
-		// 			WithArgs("refid").
-		// 			WillReturnRows(sqlmock.NewRows(columns).FromCSVString("1,1,1"))
-		// 	},
-		// 	wantErr: false,
-		// },
+		{
+			name: "delete link",
+			prepare: func(mock sqlmock.Sqlmock) {
+				mock.ExpectExec(expectedQuery).
+					WithArgs("refid").
+					WillReturnResult(sqlmock.NewResult(1, 0))
+			},
+			wantErr: false,
+		},
 		{
 			name: "delete link err",
 			prepare: func(mock sqlmock.Sqlmock) {
@@ -417,6 +415,106 @@ func Test_RemoveRefLinkUser(t *testing.T) {
 
 			if err := mock.ExpectationsWereMet(); err != nil {
 				t.Errorf("RemoveRefLinkUser() there were unfulfilled expectations: %s", err)
+			}
+		})
+	}
+}
+
+func Test_RemoveUser(t *testing.T) {
+	const expectedQuery = `DELETE FROM prj_user WHERE userid = (.+);`
+
+	tests := []struct {
+		name    string
+		prepare func(mock sqlmock.Sqlmock)
+		wantErr bool
+	}{
+		{
+			name: "delete link",
+			prepare: func(mock sqlmock.Sqlmock) {
+				mock.ExpectExec(expectedQuery).
+					WithArgs("userid").
+					WillReturnResult(sqlmock.NewResult(1, 0))
+			},
+			wantErr: false,
+		},
+		{
+			name: "delete link err",
+			prepare: func(mock sqlmock.Sqlmock) {
+				mock.ExpectExec(expectedQuery).WithArgs("userid").WillReturnError(errors.New("some error"))
+			},
+			wantErr: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			baseDB, mock, err := sqlmock.New()
+			if err != nil {
+				t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+			}
+			db := sqlx.NewDb(baseDB, "postgres")
+			defer db.Close()
+
+			tt.prepare(mock)
+
+			api := NewSQLAPI(db)
+			if err := api.RemoveUser("userid"); (err != nil) != tt.wantErr {
+				t.Errorf("RemoveUser() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if err := mock.ExpectationsWereMet(); err != nil {
+				t.Errorf("RemoveUser() there were unfulfilled expectations: %s", err)
+			}
+		})
+	}
+}
+
+func Test_RemoveLinksUser(t *testing.T) {
+	const expectedQuery = `DELETE FROM ref_link_user WHERE userid = (.+);`
+
+	tests := []struct {
+		name    string
+		prepare func(mock sqlmock.Sqlmock)
+		wantErr bool
+	}{
+		{
+			name: "delete link",
+			prepare: func(mock sqlmock.Sqlmock) {
+				mock.ExpectExec(expectedQuery).
+					WithArgs("userid").
+					WillReturnResult(sqlmock.NewResult(1, 0))
+			},
+			wantErr: false,
+		},
+		{
+			name: "delete link err",
+			prepare: func(mock sqlmock.Sqlmock) {
+				mock.ExpectExec(expectedQuery).WithArgs("userid").WillReturnError(errors.New("some error"))
+			},
+			wantErr: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			baseDB, mock, err := sqlmock.New()
+			if err != nil {
+				t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+			}
+			db := sqlx.NewDb(baseDB, "postgres")
+			defer db.Close()
+
+			tt.prepare(mock)
+
+			api := NewSQLAPI(db)
+			if err := api.RemoveLinksUser("userid"); (err != nil) != tt.wantErr {
+				t.Errorf("RemoveLinksUser() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if err := mock.ExpectationsWereMet(); err != nil {
+				t.Errorf("RemoveLinksUser() there were unfulfilled expectations: %s", err)
 			}
 		})
 	}

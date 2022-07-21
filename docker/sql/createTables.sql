@@ -35,7 +35,7 @@ CREATE TABLE ref_link_user(
     userid CHARACTER VARYING(32) NOT NULL,
     linkid CHARACTER VARYING(32) NOT NULL,
     
-    CONSTRAINT pk_ref_link_user PRIMARY KEY (refid)
+    CONSTRAINT pk_ref_link_user PRIMARY KEY (refid) REFERENCES prj_user (userid) ON DELETE CASCADE
 )
 WITH(
 	OIDS=FALSE

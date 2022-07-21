@@ -108,11 +108,27 @@ func (api *SQLAPI) AddRefLinkUser(ctx context.Context, refID, linkID, userID str
 }
 
 func (api *SQLAPI) RemoveRefLinkUser(refID string) error {
-	tx := api.db.MustBegin()
-	tx.MustExec("DELETE FROM ref_link_use WHERE refid = $1", refID)
-	err := tx.Commit()
+	_, err := api.db.Exec("DELETE FROM ref_link_user WHERE refid = $1;", refID)
 	if err != nil {
 		return e.Wrap("DELETE row ref link failed with an error: ", err)
+	}
+
+	return nil
+}
+
+func (api *SQLAPI) RemoveUser(userID string) error {
+	_, err := api.db.Exec("DELETE FROM prj_user WHERE userid = $1;", userID)
+	if err != nil {
+		return e.Wrap("DELETE row user failed with an error: ", err)
+	}
+
+	return nil
+}
+
+func (api *SQLAPI) RemoveLinksUser(userID string) error {
+	_, err := api.db.Exec("DELETE FROM ref_link_user WHERE userid = $1;", userID)
+	if err != nil {
+		return e.Wrap("DELETE all user links failed with an error: ", err)
 	}
 
 	return nil
