@@ -2,10 +2,8 @@ package sqlapi
 
 import (
 	"context"
-	"strings"
 
 	"github.com/EfimoffN/authorBot/lib/e"
-	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -49,7 +47,7 @@ func (api *SQLAPI) GetLinkByLink(lnk string) (*LinkRow, error) {
 	return nil, err
 }
 
-func (api *SQLAPI) GetLinksUser(userID string) ([]*RefRow, error) {
+func (api *SQLAPI) GetRefLinksUser(userID string) ([]*RefRow, error) {
 	refRow := []*RefRow{}
 
 	err := api.db.Select(&refRow, "SELECT * FROM ref_link_user WHERE userid = $1;", userID)
@@ -58,6 +56,34 @@ func (api *SQLAPI) GetLinksUser(userID string) ([]*RefRow, error) {
 	}
 
 	return refRow, err
+}
+
+// TO DO test
+func (api *SQLAPI) GetLinksUser(userID string) ([]*LinkRow, error) {
+	linkRow := []*LinkRow{}
+
+	err := api.db.Select(&linkRow, "SELECT prj_link.linkid, prj_link.link * FROM ref_link_user JOIN prj_link ON prj_link.linkid = ref_link_user.linkid WHERE ref_link_user.userid = $1;", userID)
+	if err != nil {
+		return nil, e.Wrap("GetLinkByLink api.db.Select failed with an error: ", err)
+	}
+
+	return linkRow, err
+}
+
+// TO DO test
+func (api *SQLAPI) GetRefByIDLinkUser(userID, linkID string) (*RefRow, error) {
+	refRow := []RefRow{}
+
+	err := api.db.Select(&refRow, "SELECT * FROM ref_link_user WHERE userid = $1 AND linkid = $2;", userID, linkID)
+	if err != nil {
+		return nil, e.Wrap("GetRefByIDLinkUser api.db.Select failed with an error: ", err)
+	}
+
+	if len(refRow) == 1 {
+		return &refRow[0], nil
+	}
+
+	return nil, err
 }
 
 func (api *SQLAPI) AddUser(ctx context.Context, userN, userID, chatID string) error {
@@ -132,10 +158,4 @@ func (api *SQLAPI) RemoveLinksUser(userID string) error {
 	}
 
 	return nil
-}
-
-func (api *SQLAPI) GetUUID() string {
-	uuidWithHyphen := uuid.New()
-	uuid := strings.Replace(uuidWithHyphen.String(), "-", "", -1)
-	return uuid
 }
