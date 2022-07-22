@@ -2,9 +2,9 @@ package sqlapi
 
 // UserRow ...
 type UserRow struct {
-	UserID   string `db:"userid"`
+	UserID   int    `db:"userid"`
 	NameUser string `db:"nameuser"`
-	ChatID   string `db:"chatid"`
+	ChatID   int64  `db:"chatid"`
 }
 
 // LinkRow ...
@@ -17,5 +17,5 @@ type LinkRow struct {
 type RefRow struct {
 	RefID  string `db:"refid"`
 	LinkID string `db:"linkid"`
-	UserID string `db:"userid"`
+	UserID int    `db:"userid"`
 }

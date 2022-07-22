@@ -17,7 +17,7 @@ func NewSQLAPI(db *sqlx.DB) *SQLAPI {
 	}
 }
 
-func (api *SQLAPI) GetUserByID(userID string) (*UserRow, error) {
+func (api *SQLAPI) GetUserByID(userID int) (*UserRow, error) {
 	userRow := []UserRow{}
 
 	err := api.db.Select(&userRow, "SELECT * FROM prj_user WHERE userid = $1;", userID)
@@ -47,7 +47,7 @@ func (api *SQLAPI) GetLinkByLink(lnk string) (*LinkRow, error) {
 	return nil, err
 }
 
-func (api *SQLAPI) GetRefLinksUser(userID string) ([]*RefRow, error) {
+func (api *SQLAPI) GetRefLinksUser(userID int) ([]*RefRow, error) {
 	refRow := []*RefRow{}
 
 	err := api.db.Select(&refRow, "SELECT * FROM ref_link_user WHERE userid = $1;", userID)
@@ -59,7 +59,7 @@ func (api *SQLAPI) GetRefLinksUser(userID string) ([]*RefRow, error) {
 }
 
 // TO DO test
-func (api *SQLAPI) GetLinksUser(userID string) ([]*LinkRow, error) {
+func (api *SQLAPI) GetLinksUser(userID int) ([]*LinkRow, error) {
 	linkRow := []*LinkRow{}
 
 	err := api.db.Select(&linkRow, "SELECT prj_link.linkid, prj_link.link * FROM ref_link_user JOIN prj_link ON prj_link.linkid = ref_link_user.linkid WHERE ref_link_user.userid = $1;", userID)
@@ -71,7 +71,7 @@ func (api *SQLAPI) GetLinksUser(userID string) ([]*LinkRow, error) {
 }
 
 // TO DO test
-func (api *SQLAPI) GetRefByIDLinkUser(userID, linkID string) (*RefRow, error) {
+func (api *SQLAPI) GetRefByIDLinkUser(userID int, linkID string) (*RefRow, error) {
 	refRow := []RefRow{}
 
 	err := api.db.Select(&refRow, "SELECT * FROM ref_link_user WHERE userid = $1 AND linkid = $2;", userID, linkID)
@@ -86,7 +86,7 @@ func (api *SQLAPI) GetRefByIDLinkUser(userID, linkID string) (*RefRow, error) {
 	return nil, err
 }
 
-func (api *SQLAPI) AddUser(ctx context.Context, userN, userID, chatID string) error {
+func (api *SQLAPI) AddUser(ctx context.Context, userN string, userID int, chatID int64) error {
 	const query = `INSERT INTO prj_user(userid, nameuser, chatid) VALUES (:userid, :nameuser, :chatid) ON CONFLICT DO NOTHING;`
 
 	user := UserRow{
@@ -117,7 +117,7 @@ func (api *SQLAPI) AddLink(ctx context.Context, link, linkID string) error {
 	return nil
 }
 
-func (api *SQLAPI) AddRefLinkUser(ctx context.Context, refID, linkID, userID string) error {
+func (api *SQLAPI) AddRefLinkUser(ctx context.Context, refID string, linkID string, userID int) error {
 	const query = `INSERT INTO ref_link_user(refid, linkid, userid) VALUES (:refid, :linkid, :userid) ON CONFLICT DO NOTHING;`
 
 	refR := RefRow{
@@ -142,7 +142,17 @@ func (api *SQLAPI) RemoveRefLinkUser(refID string) error {
 	return nil
 }
 
-func (api *SQLAPI) RemoveUser(userID string) error {
+// TODO test
+func (api *SQLAPI) RemoveRefByUserIDLinkID(userID int, linkID string) error {
+	_, err := api.db.Exec("DELETE FROM ref_link_user WHERE userID = $1 AND linkid = $2;", userID, linkID)
+	if err != nil {
+		return e.Wrap("DELETE row ref link by userid adn linkid failed with an error: ", err)
+	}
+
+	return nil
+}
+
+func (api *SQLAPI) RemoveUser(userID int) error {
 	_, err := api.db.Exec("DELETE FROM prj_user WHERE userid = $1;", userID)
 	if err != nil {
 		return e.Wrap("DELETE row user failed with an error: ", err)
@@ -151,7 +161,7 @@ func (api *SQLAPI) RemoveUser(userID string) error {
 	return nil
 }
 
-func (api *SQLAPI) RemoveLinksUser(userID string) error {
+func (api *SQLAPI) RemoveLinksUser(userID int) error {
 	_, err := api.db.Exec("DELETE FROM ref_link_user WHERE userid = $1;", userID)
 	if err != nil {
 		return e.Wrap("DELETE all user links failed with an error: ", err)
