@@ -13,7 +13,6 @@ import (
 )
 
 type IEvent interface {
-	NewBotEvents(sqlapi *sqlapi.SQLAPI, ctx context.Context) *Event
 	AddNewUser(userN string, userID int, chatID int64) error
 	AddNewRefUserLink(userID int, link string) error
 	RemoveRefUserLink(userID int, link string) error

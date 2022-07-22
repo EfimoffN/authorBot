@@ -18,10 +18,6 @@ const (
 	AllLinkCmd = "/all"
 )
 
-type ICommands interface {
-	NewBotCommands(botAPI *tgbotapi.BotAPI, event events.IEvent, ctx context.Context) *Commands
-}
-
 type Commands struct {
 	BotAPI *tgbotapi.BotAPI
 	Event  events.IEvent
@@ -57,7 +53,6 @@ func (c *Commands) DoCommand(message *tgbotapi.Message) error {
 	default:
 		return c.sendUnknownCommand(message)
 	}
-
 }
 
 func (c *Commands) sendHelp(message *tgbotapi.Message) error {
