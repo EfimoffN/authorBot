@@ -23,7 +23,7 @@ func Test_GetUserByID(t *testing.T) {
 			name: "get user",
 			prepare: func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(expectedQuery).
-					WithArgs("userID").
+					WithArgs(123).
 					WillReturnRows(sqlmock.NewRows(columns).FromCSVString("1,1,1"))
 			},
 			wantErr: false,
@@ -32,7 +32,7 @@ func Test_GetUserByID(t *testing.T) {
 			name: "get user nil",
 			prepare: func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(expectedQuery).
-					WithArgs("userID").
+					WithArgs(123).
 					WillReturnRows(sqlmock.NewRows(columns).FromCSVString("0,0,0"))
 			},
 			wantErr: false,
@@ -41,7 +41,7 @@ func Test_GetUserByID(t *testing.T) {
 			name: "get user error",
 			prepare: func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(expectedQuery).
-					WithArgs("userID").
+					WithArgs(123).
 					WillReturnRows(sqlmock.NewRows(columns).FromCSVString("0,1"))
 			},
 			wantErr: true,
@@ -61,7 +61,7 @@ func Test_GetUserByID(t *testing.T) {
 
 			api := NewSQLAPI(db)
 
-			_, err = api.GetUserByID("userID")
+			_, err = api.GetUserByID(123)
 
 			if (err != nil) != tt.wantErr {
 				t.Errorf("SetNewUser() error = %v, wantErr %v", err, tt.wantErr)
@@ -144,7 +144,7 @@ func Test_GetLinkByLink(t *testing.T) {
 func Test_GetLinksUser(t *testing.T) {
 	columns := []string{"refid", "userid", "linkid"}
 
-	const expectedQuery = "SELECT (.+) FROM ref_link_user WHERE userid = (.+);"
+	const expectedQuery = "SELECT prj_link.linkid, prj_link.link FROM ref_link_user JOIN prj_link ON prj_link.linkid = ref_link_user.linkid WHERE ref_link_user.userid = (.+);"
 
 	tests := []struct {
 		name    string
@@ -155,8 +155,8 @@ func Test_GetLinksUser(t *testing.T) {
 			name: "get link",
 			prepare: func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(expectedQuery).
-					WithArgs("userid").
-					WillReturnRows(sqlmock.NewRows(columns).FromCSVString("1,1,1"))
+					WithArgs(123).
+					WillReturnRows(sqlmock.NewRows(columns).FromCSVString("1,1"))
 			},
 			wantErr: false,
 		},
@@ -164,7 +164,7 @@ func Test_GetLinksUser(t *testing.T) {
 			name: "get link nil",
 			prepare: func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(expectedQuery).
-					WithArgs("userid").
+					WithArgs(123).
 					WillReturnRows(sqlmock.NewRows(columns).FromCSVString("0,0,0"))
 			},
 			wantErr: false,
@@ -173,7 +173,7 @@ func Test_GetLinksUser(t *testing.T) {
 			name: "get link error",
 			prepare: func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(expectedQuery).
-					WithArgs("userid").
+					WithArgs(123).
 					WillReturnRows(sqlmock.NewRows(columns).FromCSVString("0,1"))
 			},
 			wantErr: true,
@@ -193,7 +193,7 @@ func Test_GetLinksUser(t *testing.T) {
 
 			api := NewSQLAPI(db)
 
-			_, err = api.GetLinksUser("userid")
+			_, err = api.GetLinksUser(123)
 
 			if (err != nil) != tt.wantErr {
 				t.Errorf("GetLinksUser() error = %v, wantErr %v", err, tt.wantErr)
@@ -210,9 +210,9 @@ func Test_GetLinksUser(t *testing.T) {
 func Test_AddUser(t *testing.T) {
 	ctx := context.Background()
 	user := UserRow{
-		UserID:   "userId",
+		UserID:   123,
 		NameUser: "userN",
-		ChatID:   "chatID",
+		ChatID:   321,
 	}
 
 	const expectedQuery = `INSERT INTO prj_user\(userid, nameuser, chatid\)	VALUES (.+)	ON CONFLICT DO NOTHING;`
@@ -320,7 +320,7 @@ func Test_AddRefLinkUser(t *testing.T) {
 	refR := RefRow{
 		RefID:  "refID",
 		LinkID: "linkID",
-		UserID: "userID",
+		UserID: 123,
 	}
 
 	const expectedQuery = `INSERT INTO ref_link_user\(refid, linkid, userid\) VALUES (.+) ON CONFLICT DO NOTHING;`
@@ -432,7 +432,7 @@ func Test_RemoveUser(t *testing.T) {
 			name: "delete link",
 			prepare: func(mock sqlmock.Sqlmock) {
 				mock.ExpectExec(expectedQuery).
-					WithArgs("userid").
+					WithArgs(123).
 					WillReturnResult(sqlmock.NewResult(1, 0))
 			},
 			wantErr: false,
@@ -440,7 +440,7 @@ func Test_RemoveUser(t *testing.T) {
 		{
 			name: "delete link err",
 			prepare: func(mock sqlmock.Sqlmock) {
-				mock.ExpectExec(expectedQuery).WithArgs("userid").WillReturnError(errors.New("some error"))
+				mock.ExpectExec(expectedQuery).WithArgs(123).WillReturnError(errors.New("some error"))
 			},
 			wantErr: true,
 		},
@@ -458,7 +458,7 @@ func Test_RemoveUser(t *testing.T) {
 			tt.prepare(mock)
 
 			api := NewSQLAPI(db)
-			if err := api.RemoveUser("userid"); (err != nil) != tt.wantErr {
+			if err := api.RemoveUser(123); (err != nil) != tt.wantErr {
 				t.Errorf("RemoveUser() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
@@ -482,7 +482,7 @@ func Test_RemoveLinksUser(t *testing.T) {
 			name: "delete link",
 			prepare: func(mock sqlmock.Sqlmock) {
 				mock.ExpectExec(expectedQuery).
-					WithArgs("userid").
+					WithArgs(123).
 					WillReturnResult(sqlmock.NewResult(1, 0))
 			},
 			wantErr: false,
@@ -490,7 +490,7 @@ func Test_RemoveLinksUser(t *testing.T) {
 		{
 			name: "delete link err",
 			prepare: func(mock sqlmock.Sqlmock) {
-				mock.ExpectExec(expectedQuery).WithArgs("userid").WillReturnError(errors.New("some error"))
+				mock.ExpectExec(expectedQuery).WithArgs(123).WillReturnError(errors.New("some error"))
 			},
 			wantErr: true,
 		},
@@ -508,7 +508,7 @@ func Test_RemoveLinksUser(t *testing.T) {
 			tt.prepare(mock)
 
 			api := NewSQLAPI(db)
-			if err := api.RemoveLinksUser("userid"); (err != nil) != tt.wantErr {
+			if err := api.RemoveLinksUser(123); (err != nil) != tt.wantErr {
 				t.Errorf("RemoveLinksUser() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}

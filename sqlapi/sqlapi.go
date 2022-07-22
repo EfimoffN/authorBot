@@ -62,9 +62,9 @@ func (api *SQLAPI) GetRefLinksUser(userID int) ([]*RefRow, error) {
 func (api *SQLAPI) GetLinksUser(userID int) ([]*LinkRow, error) {
 	linkRow := []*LinkRow{}
 
-	err := api.db.Select(&linkRow, "SELECT prj_link.linkid, prj_link.link * FROM ref_link_user JOIN prj_link ON prj_link.linkid = ref_link_user.linkid WHERE ref_link_user.userid = $1;", userID)
+	err := api.db.Select(&linkRow, "SELECT prj_link.linkid, prj_link.link FROM ref_link_user JOIN prj_link ON prj_link.linkid = ref_link_user.linkid WHERE ref_link_user.userid = $1;", userID)
 	if err != nil {
-		return nil, e.Wrap("GetLinkByLink api.db.Select failed with an error: ", err)
+		return nil, e.Wrap("GetLinksUser api.db.Select failed with an error: ", err)
 	}
 
 	return linkRow, err
