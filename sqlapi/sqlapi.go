@@ -17,6 +17,19 @@ func NewSQLAPI(db *sqlx.DB) *SQLAPI {
 	}
 }
 
+func ConnectDB(databaseURL string) (*sqlx.DB, error) {
+	db, err := sqlx.Open("postgres", databaseURL)
+	if err != nil {
+		return nil, e.Wrap("sqlx.Open failed with an error: ", err)
+	}
+
+	if err := db.Ping(); err != nil {
+		return nil, e.Wrap("DB.Ping failed with an error: ", err)
+	}
+
+	return db, err
+}
+
 func (api *SQLAPI) GetUserByID(userID int) (*UserRow, error) {
 	userRow := []UserRow{}
 
@@ -26,7 +39,7 @@ func (api *SQLAPI) GetUserByID(userID int) (*UserRow, error) {
 	}
 
 	if len(userRow) == 1 {
-		return &userRow[0], err
+		return &userRow[0], nil
 	}
 
 	return nil, err

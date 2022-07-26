@@ -13,6 +13,7 @@ type ConfigApp struct {
 	BindAddr        string `yaml: "bind_addr"`
 	LogLevel        string `yaml: "log_level"`
 	ConnectPostgres string `yaml: "connect_postgres"`
+	Timeout         int    `yaml: "timeout"`
 }
 
 func CreateConfig(configPath string) (*ConfigApp, error) {

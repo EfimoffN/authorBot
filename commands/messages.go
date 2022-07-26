@@ -20,7 +20,4 @@ const msgHello = "Доброго времени суток! \n\n" + msgHelp
 
 const (
 	msgUnknownCommand = "Неизвестная команда."
-	msgNoSavedPages   = "You have no saved pages"
-	msgSaved          = "Saved!"
-	msgAlreadyExists  = "You have already have this page in your list"
 )
