@@ -7,6 +7,18 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
+type ISQLAPI interface {
+	GetLinksUser(userID int) ([]*LinkRow, error)
+	GetRefByIDLinkUser(userID int, linkID string) (*RefRow, error)
+	GetUserByID(userID int) (*UserRow, error)
+	GetRefLinksUser(userID int) ([]*RefRow, error)
+	AddRefLinkUser(ctx context.Context, refID string, linkID string, userID int) error
+	AddUser(ctx context.Context, userN string, userID int, chatID int64) error
+	RemoveRefByUserIDLinkID(userID int, linkID string) error
+	GetLinkByLink(lnk string) (*LinkRow, error)
+	AddLink(ctx context.Context, link, linkID string) error
+}
+
 type SQLAPI struct {
 	db *sqlx.DB
 }
@@ -71,7 +83,6 @@ func (api *SQLAPI) GetRefLinksUser(userID int) ([]*RefRow, error) {
 	return refRow, err
 }
 
-// TO DO test
 func (api *SQLAPI) GetLinksUser(userID int) ([]*LinkRow, error) {
 	linkRow := []*LinkRow{}
 
@@ -83,7 +94,6 @@ func (api *SQLAPI) GetLinksUser(userID int) ([]*LinkRow, error) {
 	return linkRow, err
 }
 
-// TO DO test
 func (api *SQLAPI) GetRefByIDLinkUser(userID int, linkID string) (*RefRow, error) {
 	refRow := []RefRow{}
 
@@ -146,16 +156,6 @@ func (api *SQLAPI) AddRefLinkUser(ctx context.Context, refID string, linkID stri
 	return nil
 }
 
-func (api *SQLAPI) RemoveRefLinkUser(refID string) error {
-	_, err := api.db.Exec("DELETE FROM ref_link_user WHERE refid = $1;", refID)
-	if err != nil {
-		return e.Wrap("DELETE row ref link failed with an error: ", err)
-	}
-
-	return nil
-}
-
-// TODO test
 func (api *SQLAPI) RemoveRefByUserIDLinkID(userID int, linkID string) error {
 	_, err := api.db.Exec("DELETE FROM ref_link_user WHERE userID = $1 AND linkid = $2;", userID, linkID)
 	if err != nil {
@@ -169,15 +169,6 @@ func (api *SQLAPI) RemoveUser(userID int) error {
 	_, err := api.db.Exec("DELETE FROM prj_user WHERE userid = $1;", userID)
 	if err != nil {
 		return e.Wrap("DELETE row user failed with an error: ", err)
-	}
-
-	return nil
-}
-
-func (api *SQLAPI) RemoveLinksUser(userID int) error {
-	_, err := api.db.Exec("DELETE FROM ref_link_user WHERE userid = $1;", userID)
-	if err != nil {
-		return e.Wrap("DELETE all user links failed with an error: ", err)
 	}
 
 	return nil

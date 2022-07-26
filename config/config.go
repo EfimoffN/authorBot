@@ -17,7 +17,6 @@ type ConfigApp struct {
 }
 
 func CreateConfig(configPath string) (*ConfigApp, error) {
-
 	err := validateConfigAppPath(configPath)
 	if err != nil {
 		return nil, e.Wrap("validat config path", err)
@@ -48,8 +47,3 @@ func validateConfigAppPath(path string) error {
 
 	return nil
 }
-
-// func validateConfig(config ConfigApp) error {
-
-// 	return nil
-// }

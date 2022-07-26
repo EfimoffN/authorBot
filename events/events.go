@@ -21,7 +21,7 @@ type IEvent interface {
 }
 
 type Event struct {
-	SQLAPI *sqlapi.SQLAPI // исползовать интерфейс
+	SQLAPI sqlapi.ISQLAPI
 	ctx    context.Context
 }
 
@@ -31,7 +31,7 @@ var (
 	ErrLinkNotDB         = errors.New("there is no such link in the database")
 )
 
-func NewBotEvents(sqlapi *sqlapi.SQLAPI, ctx context.Context) *Event {
+func NewBotEvents(sqlapi sqlapi.ISQLAPI, ctx context.Context) *Event {
 	return &Event{
 		SQLAPI: sqlapi,
 		ctx:    ctx,
@@ -140,14 +140,14 @@ func (api *Event) getUser(userID int) (*sqlapi.UserRow, error) {
 	return userRow, nil
 }
 
-func (api *Event) getRefLinksUser(userID int) ([]*sqlapi.RefRow, error) {
-	refRow, err := api.SQLAPI.GetRefLinksUser(userID)
-	if err != nil {
-		return nil, e.Wrap("get all ref user links failed with an error: ", err)
-	}
+// func (api *Event) getRefLinksUser(userID int) ([]*sqlapi.RefRow, error) {
+// 	refRow, err := api.SQLAPI.GetRefLinksUser(userID)
+// 	if err != nil {
+// 		return nil, e.Wrap("get all ref user links failed with an error: ", err)
+// 	}
 
-	return refRow, nil
-}
+// 	return refRow, nil
+// }
 
 func (api *Event) createRefUserLink(userID int, linkID string) (string, error) {
 	uuid := getUUID()
