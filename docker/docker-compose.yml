@@ -5,10 +5,11 @@ services:
     image: postgres:latest
     environment:
       POSTGRES_DB: "botdb"
-      POSTGRES_USER: "botuser"
+      POSTGRES_USER: "postgres"
       POSTGRES_PASSWORD: "123456"
-    volumes:
-      - .:/docker-entrypoint-initdb.d
+    # volumes:
+      # - .:/docker-entrypoint-initdb.d
+      # - ./sql/createTables2.sql:/docker-entrypoint-initdb.d/createTables2.sql
     ports:
       - "5432:5432"
     networks:
@@ -19,7 +20,7 @@ services:
     image: dpage/pgadmin4:latest
     environment:
       PGADMIN_DEFAULT_EMAIL: "habrpguser@habr.com"
-      PGADMIN_DEFAULT_PASSWORD: "pgadminbot"
+      PGADMIN_DEFAULT_PASSWORD: "123456"
       PGADMIN_CONFIG_SERVER_MODE: "False"
     volumes:
       - ./pgadmin:/var/lib/pgadmin

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"os"
 
@@ -16,6 +17,11 @@ import (
 )
 
 func main() {
+
+	pgPass := os.Getenv("pgPass")
+	fmt.Println(pgPass)
+
+	return
 
 	app := &cli.App{
 		Name: "authorBot",
